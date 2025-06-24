@@ -33,6 +33,13 @@ app.use((req, res, next) => {
 
 // API routes MUST come before static file serving
 console.log('🔧 Registering API routes...');
+
+// Add debugging middleware specifically for API routes
+app.use('/api', (req, res, next) => {
+  console.log(`🔍 API Request: ${req.method} ${req.originalUrl} - Body:`, req.body);
+  next();
+});
+
 app.use('/api', campaignRoutes);
 app.use('/api', messageRoutes);
 
@@ -70,16 +77,18 @@ app.all('*', (req, res) => {
     });
   }
   
+  // TEMPORARILY COMMENTED OUT - This was blocking POST requests
   // Only serve React app for GET requests to non-API routes
-  if (req.method !== 'GET') {
-    console.log(`❌ Non-GET request to frontend route: ${req.method} ${req.path}`);
-    return res.status(405).json({ 
-      error: 'Method not allowed',
-      method: req.method,
-      path: req.path
-    });
-  }
+  // if (req.method !== 'GET') {
+  //   console.log(`❌ Non-GET request to frontend route: ${req.method} ${req.path}`);
+  //   return res.status(405).json({ 
+  //     error: 'Method not allowed',
+  //     method: req.method,
+  //     path: req.path
+  //   });
+  // }
   
+  // For now, serve React app for all non-API routes
   const indexPath = path.join(__dirname, 'public', 'index.html');
   console.log('🔍 Attempting to serve React app from:', indexPath);
   
