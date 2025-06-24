@@ -43,6 +43,30 @@ app.use('/api', (req, res, next) => {
 app.use('/api', campaignRoutes);
 app.use('/api', messageRoutes);
 
+// ALSO add routes directly without /api prefix for debugging
+// This is temporary to catch misdirected requests
+app.use('/campaigns', (req, res, next) => {
+  console.log(`🚨 DIRECT /campaigns request detected: ${req.method} ${req.originalUrl}`);
+  console.log('🚨 This should be going to /api/campaigns instead!');
+  // Redirect to the correct API endpoint
+  const newUrl = '/api' + req.originalUrl;
+  console.log(`🔄 Redirecting to: ${newUrl}`);
+  req.url = newUrl;
+  req.originalUrl = newUrl;
+  next();
+});
+
+app.use('/personalized-message', (req, res, next) => {
+  console.log(`🚨 DIRECT /personalized-message request detected: ${req.method} ${req.originalUrl}`);
+  console.log('🚨 This should be going to /api/personalized-message instead!');
+  // Redirect to the correct API endpoint
+  const newUrl = '/api' + req.originalUrl;
+  console.log(`🔄 Redirecting to: ${newUrl}`);
+  req.url = newUrl;
+  req.originalUrl = newUrl;
+  next();
+});
+
 // Test endpoint to verify API routing
 app.get('/api/test', (req, res) => {
   res.json({ message: 'API routing is working!', timestamp: new Date().toISOString() });
