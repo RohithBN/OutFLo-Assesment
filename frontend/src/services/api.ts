@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { Campaign, CreateCampaignData, UpdateCampaignData, LinkedInProfile, PersonalizedMessageResponse, ApiResponse } from '../types';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL
+
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: "/api",
   headers: {
     'Content-Type': 'application/json',
   },
