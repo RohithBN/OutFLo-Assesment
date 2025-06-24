@@ -50,11 +50,27 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Add error handling middleware
+app.use(errorHandler);
+
 // Catch all handler for React routes (must be after API routes and exclude API paths)
-app.get('*', (req, res) => {
+app.all('*', (req, res) => {
   // Don't serve React app for API routes
   if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ error: 'API endpoint not found' });
+    return res.status(404).json({ 
+      error: 'API endpoint not found',
+      method: req.method,
+      path: req.path
+    });
+  }
+  
+  // Only serve React app for GET requests to non-API routes
+  if (req.method !== 'GET') {
+    return res.status(405).json({ 
+      error: 'Method not allowed for this route',
+      method: req.method,
+      path: req.path
+    });
   }
   
   const indexPath = path.join(__dirname, 'public', 'index.html');
