@@ -9,11 +9,11 @@ import {
 
 const router = express.Router();
 
-router.route('/')
+router.route('/campaigns')
   .get(getCampaigns)
   .post(createCampaign);
 
-router.route('/:id')
+router.route('/campaigns/:id')
   .get(getCampaign)
   .put(updateCampaign)
   .delete(deleteCampaign);

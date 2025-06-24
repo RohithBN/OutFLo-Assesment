@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import path from 'path';
+import fs from 'fs';
 
 import campaignRoutes from './routes/campaigns';
 import messageRoutes from './routes/messages';
@@ -29,7 +30,6 @@ const publicPath = path.join(__dirname, 'public');
 console.log('📁 Looking for static files at:', publicPath);
 
 // Check if public directory exists
-const fs = require('fs');
 if (fs.existsSync(publicPath)) {
   console.log('✅ Public directory found');
   app.use(express.static(publicPath));
@@ -38,8 +38,16 @@ if (fs.existsSync(publicPath)) {
 }
 
 // API routes
+console.log('🔧 Registering API routes...');
 app.use('/api', campaignRoutes);
 app.use('/api', messageRoutes);
+
+// Log all registered routes for debugging
+app._router.stack.forEach((middleware: any) => {
+  if (middleware.route) {
+    console.log(`📍 Route: ${Object.keys(middleware.route.methods)} ${middleware.route.path}`);
+  }
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
