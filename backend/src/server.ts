@@ -29,20 +29,37 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'public')));
 }
 
-// Routes
-app.use('/api/campaigns', campaignRoutes);
+// API routes
+app.use('/api', campaignRoutes);
 app.use('/api', messageRoutes);
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    message: 'OutFlo Campaign Manager API is running',
-    timestamp: new Date().toISOString()
-  });
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-app.use(errorHandler);
+// Catch all handler for React routes (must be after API routes)
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res) => {
+    const indexPath = path.join(__dirname, 'public', 'index.html');
+    console.log('Serving React app from:', indexPath);
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        console.error('Error serving index.html:', err);
+        res.status(500).send('Error loading application');
+      }
+    });
+  });
+}
+
+// Use Railway's PORT or default to 5000
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV}`);
+  console.log(`Static files directory: ${path.join(__dirname, 'public')}`);
+});
 
 // Database connection
 const connectDB = async () => {
@@ -55,21 +72,6 @@ const connectDB = async () => {
     process.exit(1);
   }
 };
-
-// Catch all handler for React routes (must be after API routes)
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-  });
-}
-
-// Use Railway's PORT or default to 5000
-const PORT = parseInt(process.env.PORT || '5000', 10);
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV}`);
-});
 
 // Start server
 const startServer = async () => {

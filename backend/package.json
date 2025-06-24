@@ -5,8 +5,9 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon src/server.ts",
-    "build": "tsc && npm run copy:frontend",
-    "copy:frontend": "cp -r ../frontend/dist ./dist/public || cp -r ../frontend/build ./dist/public || echo 'Frontend build not found'",
+    "build": "tsc",
+    "postbuild": "npm run copy:frontend",
+    "copy:frontend": "mkdir -p dist/public && cp -r ../frontend/dist/* dist/public/ 2>/dev/null || cp -r ../frontend/build/* dist/public/ 2>/dev/null || echo 'Frontend build not found - make sure to run frontend build first'",
     "start": "node dist/server.js",
     "test": "jest"
   },
