@@ -5,7 +5,6 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import path from 'path';
-import fs from 'fs';
 
 import campaignRoutes from './routes/campaigns';
 import messageRoutes from './routes/messages';
@@ -29,14 +28,11 @@ app.use(express.urlencoded({ extended: true }));
 const publicPath = path.join(__dirname, 'public');
 console.log('📁 Looking for static files at:', publicPath);
 
-// Always serve static files (not just in production)
+// Check if public directory exists
+const fs = require('fs');
 if (fs.existsSync(publicPath)) {
-  console.log('✅ Public directory found, serving static files');
+  console.log('✅ Public directory found');
   app.use(express.static(publicPath));
-  
-  // List files in public directory for debugging
-  const files = fs.readdirSync(publicPath);
-  console.log('📄 Files in public directory:', files);
 } else {
   console.log('❌ Public directory not found');
 }
@@ -50,32 +46,12 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Add error handling middleware
-app.use(errorHandler);
-
-// Catch all handler for React routes (must be after API routes and exclude API paths)
-app.all('*', (req, res) => {
-  // Don't serve React app for API routes
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ 
-      error: 'API endpoint not found',
-      method: req.method,
-      path: req.path
-    });
-  }
-  
-  // Only serve React app for GET requests to non-API routes
-  if (req.method !== 'GET') {
-    return res.status(405).json({ 
-      error: 'Method not allowed for this route',
-      method: req.method,
-      path: req.path
-    });
-  }
-  
+// Catch all handler for React routes (must be after API routes)
+app.get('*', (req, res) => {
   const indexPath = path.join(__dirname, 'public', 'index.html');
   console.log('🔍 Attempting to serve React app from:', indexPath);
   
+  // Check if index.html exists
   if (fs.existsSync(indexPath)) {
     console.log('✅ index.html found, serving...');
     res.sendFile(indexPath);
