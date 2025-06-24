@@ -25,6 +25,12 @@ app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Add middleware to log all requests for debugging (move to top)
+app.use((req, res, next) => {
+  console.log(`🌐 ${req.method} ${req.path} - ${new Date().toISOString()}`);
+  next();
+});
+
 // Serve static files from React build
 const publicPath = path.join(__dirname, 'public');
 console.log('📁 Looking for static files at:', publicPath);
@@ -41,12 +47,6 @@ if (fs.existsSync(publicPath)) {
 console.log('🔧 Registering API routes...');
 app.use('/api', campaignRoutes);
 app.use('/api', messageRoutes);
-
-// Add middleware to log all requests for debugging
-app.use((req, res, next) => {
-  console.log(`🌐 ${req.method} ${req.path} - ${new Date().toISOString()}`);
-  next();
-});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
