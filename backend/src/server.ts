@@ -42,11 +42,10 @@ console.log('🔧 Registering API routes...');
 app.use('/api', campaignRoutes);
 app.use('/api', messageRoutes);
 
-// Log all registered routes for debugging
-app._router.stack.forEach((middleware: any) => {
-  if (middleware.route) {
-    console.log(`📍 Route: ${Object.keys(middleware.route.methods)} ${middleware.route.path}`);
-  }
+// Add middleware to log all requests for debugging
+app.use((req, res, next) => {
+  console.log(`🌐 ${req.method} ${req.path} - ${new Date().toISOString()}`);
+  next();
 });
 
 // Health check endpoint
@@ -54,12 +53,34 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Add error handling middleware before catch-all
+app.use(errorHandler);
+
 // Catch all handler for React routes (must be after API routes)
-app.get('*', (req, res) => {
+app.all('*', (req, res) => {
+  // Handle API routes that don't exist
+  if (req.path.startsWith('/api/')) {
+    console.log(`❌ API route not found: ${req.method} ${req.path}`);
+    return res.status(404).json({ 
+      error: 'API endpoint not found',
+      method: req.method,
+      path: req.path
+    });
+  }
+  
+  // Only serve React app for GET requests to non-API routes
+  if (req.method !== 'GET') {
+    console.log(`❌ Non-GET request to frontend route: ${req.method} ${req.path}`);
+    return res.status(405).json({ 
+      error: 'Method not allowed',
+      method: req.method,
+      path: req.path
+    });
+  }
+  
   const indexPath = path.join(__dirname, 'public', 'index.html');
   console.log('🔍 Attempting to serve React app from:', indexPath);
   
-  // Check if index.html exists
   if (fs.existsSync(indexPath)) {
     console.log('✅ index.html found, serving...');
     res.sendFile(indexPath);
