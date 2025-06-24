@@ -225,3 +225,74 @@ npm run client:build # Build for production
 }
 ```
 
+## Deployment
+
+### Railway Deployment
+
+1. **Prepare for deployment:**
+   ```bash
+   # Ensure all dependencies are installed
+   npm run install:all
+   ```
+
+2. **Deploy to Railway:**
+   ```bash
+   # Method 1: Connect GitHub repository to Railway
+   # - Fork/clone this repository
+   # - Connect to Railway dashboard
+   # - Railway will auto-deploy on push
+
+   # Method 2: Deploy using Railway CLI
+   railway login
+   railway link
+   railway up
+   ```
+
+3. **Environment Variables on Railway:**
+   Set these variables in Railway dashboard:
+   ```
+   NODE_ENV=production
+   MONGODB_URI=your_mongodb_connection_string
+   GEMINI_API_KEY=your_gemini_api_key (optional)
+   ```
+
+4. **Database Setup:**
+   - Use Railway's MongoDB plugin, or
+   - Connect to MongoDB Atlas
+   - Update MONGODB_URI environment variable
+
+### Railway Configuration
+
+The project includes:
+- `railway.json` for deployment configuration
+- Single-process deployment (backend serves frontend)
+- Dynamic port binding for Railway's infrastructure
+- Production-ready build process
+
+### Live Application
+
+Once deployed, your application will be available at:
+`https://your-app-name.railway.app`
+
+The backend API will be accessible at:
+`https://your-app-name.railway.app/api/campaigns`
+
+### Environment Variables
+
+Copy `backend/.env.example` to `backend/.env` and configure:
+
+```env
+# Server Configuration
+PORT=5000
+NODE_ENV=production
+
+# Database - Use Railway MongoDB or MongoDB Atlas
+MONGODB_URI=mongodb://localhost:27017/outflo_campaigns
+
+# AI Configuration (Optional)
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Frontend URL - Railway provides this automatically
+FRONTEND_URL=https://your-app-name.railway.app
+```
+
