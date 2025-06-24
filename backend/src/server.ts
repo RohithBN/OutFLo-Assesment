@@ -50,8 +50,13 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Catch all handler for React routes (must be after API routes)
+// Catch all handler for React routes (must be after API routes and exclude API paths)
 app.get('*', (req, res) => {
+  // Don't serve React app for API routes
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  
   const indexPath = path.join(__dirname, 'public', 'index.html');
   console.log('🔍 Attempting to serve React app from:', indexPath);
   
