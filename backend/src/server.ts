@@ -53,22 +53,16 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Use Railway's PORT or default to 5000
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV}`);
-  console.log(`Static files directory: ${path.join(__dirname, 'public')}`);
-});
+const PORT = Number(process.env.PORT) || 5000;
 
 // Database connection
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI ;
+    const mongoURI = process.env.MONGODB_URI;
     await mongoose.connect(mongoURI as string);
-    console.log(' MongoDB connected successfully');
+    console.log('✅ MongoDB connected successfully');
   } catch (error) {
-    console.error(' MongoDB connection error:', error);
+    console.error('❌ MongoDB connection error:', error);
     process.exit(1);
   }
 };
@@ -76,6 +70,12 @@ const connectDB = async () => {
 // Start server
 const startServer = async () => {
   await connectDB();
+  
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📦 Environment: ${process.env.NODE_ENV}`);
+    console.log(`📁 Static files directory: ${path.join(__dirname, 'public')}`);
+  });
 };
 
 startServer().catch(error => {
